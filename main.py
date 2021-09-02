@@ -89,7 +89,8 @@ class Window(pyglet.window.Window):
             point.draw()
 
     def on_mouse_press(self, x, y, button, modifiers):
-        self.points.append(Point(Vec2(x, y)))
+        if button == pyglet.window.mouse.LEFT:
+            self.points.append(Point(Vec2(x, y)))
 
     def on_key_press(self, symbol, modifiers):
         if symbol == pyglet.window.key.SPACE:
