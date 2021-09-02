@@ -20,7 +20,7 @@ class Point:
         self._previous_position = position_before_update
     
     def draw(self):
-        shape = pyglet.shapes.Circle(self.position.x, self.position.y, 10)
+        shape = pyglet.shapes.Circle(self.position.x, self.position.y, 5)
         shape.color = (230, 230, 240)
         shape.draw()
 
@@ -66,8 +66,12 @@ class Window(pyglet.window.Window):
                 Stick(self.points[3], self.points[4]),
                 Stick(self.points[4], self.points[5]),
                 ]
+        self.paused = False
 
     def update(self, dt):
+        if self.paused:
+            return
+
         for point in self.points:
             point.update(dt)
 
@@ -83,6 +87,13 @@ class Window(pyglet.window.Window):
 
         for point in self.points:
             point.draw()
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        self.points.append(Point(Vec2(x, y)))
+
+    def on_key_press(self, symbol, modifiers):
+        if symbol == pyglet.window.key.SPACE:
+            self.paused = not self.paused
 
 win = Window(800, 800)
 
