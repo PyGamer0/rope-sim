@@ -11,7 +11,7 @@ class Point:
 
         self._previous_position = position
 
-        self.shape = pyglet.shapes.Circle(position.x, position.y, 5, color=(230, 230, 240), batch=batch)
+        self.shape = pyglet.shapes.Circle(position.x, position.y, 10, color=(230, 230, 240), batch=batch)
 
     def update(self, dt):
         if self.is_locked:
@@ -21,8 +21,14 @@ class Point:
         self.position = self.position + (self.position - self._previous_position)
         self.position = self.position + (GRAVITY.scale(dt ** 2))
         self._previous_position = position_before_update
+
         self.shape.position = self.position
 
+    def update_color(self):
+        if self.is_locked:
+            self.shape.color = (230, 100, 100)
+            return
+        self.shape.color = (230, 230, 240)
 
 class Stick:
     def __init__(self, pos_a, pos_b, batch, length=None):
@@ -71,14 +77,30 @@ class Window(pyglet.window.Window):
                        ]
         self.paused = False
 
+    def find_point(self, x, y):
+        # Checks if the x,y coords are on a point.
+        # Returns -1 if point not found
+        i = 0
+        while i < len(self.points) - 1:
+            p = self.points[i]
+            i += 1
+
+            d = p.position.distance(Vec2(x, y))
+            if d <= 10.0:
+                return i - 1
+        return -1
+
     def update(self, dt):
+        for point in self.points:
+            point.update_color()
+
         if self.paused:
             return
 
         for point in self.points:
             point.update(dt)
 
-        for i in range(5):
+        for _ in range(5):
             for stick in self.sticks:
                 stick.update(dt)
 
@@ -88,7 +110,11 @@ class Window(pyglet.window.Window):
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == pyglet.window.mouse.LEFT:
-            self.points.append(Point(Vec2(x, y), self.batch))
+            point_i = self.find_point(x, y)
+            if point_i == -1:
+                self.points.append(Point(Vec2(x, y), self.batch))
+            else:
+                self.points[point_i].is_locked = not self.points[point_i].is_locked
 
     def on_key_press(self, symbol, modifiers):
         if symbol == pyglet.window.key.SPACE:
