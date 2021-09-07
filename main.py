@@ -90,6 +90,19 @@ class Window(pyglet.window.Window):
                 return i - 1
         return -1
 
+    def find_stick(self, p):
+        # Given a point find the index of the stick
+        # that is connected to it
+        # Returns -1 if not found
+        i = 0
+        while i < len(self.sticks) - 1:
+            s = self.sticks[i]
+            i += 1
+
+            if (s.pos_a == p) or (s.pos_b == p):
+                return i - 1
+        return -1
+
     def update(self, dt):
         for point in self.points:
             point.update_color()
@@ -109,12 +122,21 @@ class Window(pyglet.window.Window):
         self.batch.draw()
 
     def on_mouse_press(self, x, y, button, modifiers):
+        point_i = self.find_point(x, y)
         if button == pyglet.window.mouse.LEFT:
-            point_i = self.find_point(x, y)
             if point_i == -1:
                 self.points.append(Point(Vec2(x, y), self.batch))
             else:
                 self.points[point_i].is_locked = not self.points[point_i].is_locked
+        else:
+            if point_i == -1:
+                return
+            stick_i = self.find_stick(self.points[point_i])
+            if stick_i != -1:
+                self.sticks[stick_i].line.delete()
+                self.sticks.pop(stick_i)
+            self.points[point_i].shape.delete()
+            self.points.pop(point_i)
 
     def on_key_press(self, symbol, modifiers):
         if symbol == pyglet.window.key.SPACE:
