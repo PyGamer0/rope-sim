@@ -9,4 +9,8 @@ $ python main.py
 ```
 
 ## Interations
-None yet. :(
+**Maybe buggy**
+
+`Space`: Pause the simulation
+`Left-Click`: Add points / change their locked state
+`Right-Click`: Delete points and their corresponding lines.
